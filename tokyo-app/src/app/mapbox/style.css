@@ -1,0 +1,13 @@
+.content {
+    display: flex;
+    flex-direction: row;
+}
+.mapboxgl-map {
+    margin: 0 0 auto 0;
+}
+.card {
+    display: flex;
+    flex-direction: row;
+    height: 15%;
+    width: 40%   
+}
