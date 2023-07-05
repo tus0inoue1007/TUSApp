@@ -9,8 +9,14 @@ import type {MapboxStyle, MapLayerMouseEvent} from 'react-map-gl';
 import type {MarkerDragEvent, LngLat} from 'react-map-gl';
 import bbox from '@turf/bbox';
 import {dataLayer,lineLayer} from './map-style';
-import Pin from './pin';
+// import Pin from './pin';
+import Pin from '@/components/pin';
+import RecommendPin from '@/components/recommendpin';
+import RecommendSheet from '@/components/recommendsheet';
+import SimpleBox from '@/components/simplebox';
 import Sheet from '@/components/sheet';
+import axios from 'axios'
+
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./style.css"
 
@@ -18,20 +24,31 @@ interface Mark {
   lng:number;
   lat:number;
 }
+interface SheetInfo  {
+  prefecture: string;
+  image: string;
+  city: string;
+  feature: string;
+}
 
 function App() {
 
   const [allData, setAllData] = useState(null);
   const [recommendData,setRecommendData] = useState(null);
-  const [hoverInfo, setHoverInfo] = useState(null);
   const mapRef = useRef<MapRef>();
   const [marker, setMarker] = useState<Mark | null>(null);
-  const [recommendMarker,setRecommendMarker] = useState<Mark[]>([])
-  const [clickMarker,setClickMarker] = useState(false)
+  const [recommendMarker,setRecommendMarker] = useState<Mark[]>([]);
+  const [recommendInfo,setRecommendInfo] = useState<SheetInfo>({
+    prefecture: "",
+    image: "",
+    city: "",
+    feature: ""
+  });
+  const [isclicked,setIsclicked] = useState(false);
+  const [isclickedrecommend,setIsclickedrecommend] = useState(false);
+  const [clickedprefecture,setClickedprefecture] =useState<number>(0);
   const [enableHover, setEnableHover] = useState(true);
 
-  // const [resetViewport, setResetViewport] = useState(false);
-  // const [events, logEvents] = useState<Record<string, LngLat>>({});
 
 
   useEffect(() => {
@@ -41,22 +58,27 @@ function App() {
       .catch(error => console.error(error));
   }, []);
 
+
   useEffect(() => {
     fetch('/japan_recommend.json')
       .then(response => response.json())
       .then(data =>
         {
-          // console.log(data.features[0].geometry.coordinates[0][0])     
-          setRecommendMarker([...recommendMarker,{lng:data.features[0].geometry.coordinates[0][0],lat:data.features[0].geometry.coordinates[0][1]}])   
-          // setRecommendMarker((prevMarkers) => [
-          //   ...(prevMarkers || []),
-          //   { lng: data.features[0].geometry.coordinates[0][0], lat: data.features[0].geometry.coordinates[0][1] },
-          // ]);
+          // setRecommendMarker([...recommendMarker,{lng:data.features[0].geometry.coordinates[0][0],lat:data.features[0].geometry.coordinates[0][1]}])   
+          // setRecommendInfo(
+          //   {
+          //     prefecture: data.features[0].properties.name,
+          //     image: data.features[0].properties.positions[0].image,
+          //     city: data.features[0].properties.positions[0].city,
+          //     feature:  data.features[0].properties.positions[0].feature,
+          //   }
+          // )                          
           setRecommendData(data)
         }
         )
       .catch(error => console.error(error));
   }, []);
+
 
   const onMarkerDragStart = useCallback((event: MarkerDragEvent) => {
     // logEvents(_events => ({..._events, onDragStart: event.lngLat}));
@@ -71,6 +93,25 @@ function App() {
   const onMarkerDragEnd = useCallback((event: MarkerDragEvent) => {
     // logEvents(_events => ({..._events, onDragEnd: event.lngLat}));
   }, []);
+
+  const MarkeronClick = () => {
+    setIsclickedrecommend(true)
+    console.log("markeronclick",recommendInfo)
+    // setRecommendMarker([...recommendMarker,{lng:recommendData.features[0].geometry.coordinates[0][0],lat:recommendData.features[0].geometry.coordinates[0][1]}])   
+    // setRecommendInfo(
+    //   {
+    //     prefecture: recommendData.features[0].properties.name,
+    //     image: recommendData.features[0].properties.positions[0].image,
+    //     city: recommendData.features[0].properties.positions[0].city,
+    //     feature:  recommendData.features[0].properties.positions[0].feature,
+    //   }
+    // )                 
+    // console.log(recommendInfo)
+    // console.log(recommendMarker)
+    // const res = axios.get(`/api/map/${clickedprefecture}`)
+    // console.log(res)
+  }
+
 
   //都道府県の色を変更する
   const Changecolor = (prefecture) => {   
@@ -129,20 +170,42 @@ function App() {
     }
   }, [allData,enableHover]);
 
-  const onClick = useCallback((event: MapLayerMouseEvent) => {       
+  const onClick = useCallback((event: MapLayerMouseEvent) => {  
+
     const feat = event.features[0];       
-    console.log(recommendData)
     if (feat) {
-      const prefecture =feat.properties.pref;
+      const prefecture =feat.properties?.pref;
+      setClickedprefecture(prefecture)
       Changecolor(prefecture)
       setEnableHover(false) 
-      setClickMarker(true)
+      setIsclicked(true)
+
+      setRecommendMarker([...recommendMarker,{lng:recommendData.features[0].geometry.coordinates[0][0],lat:recommendData.features[0].geometry.coordinates[0][1]}])   
+      setRecommendInfo(
+        {
+          prefecture: recommendData.features[prefecture-1].properties.name,
+          image: recommendData.features[prefecture-1].properties.positions[0].image,
+          city: recommendData.features[prefecture-1].properties.positions[0].city,
+          feature:  recommendData.features[prefecture-1].properties.positions[0].feature,
+        }
+      )
+
+      console.log("recommendData",recommendData)
+      console.log("recommendInfo",recommendInfo)
+      console.log("recommendMarker",recommendMarker)
+
+
+
+
+
       //zoomを操作
       const [minLng, minLat, maxLng, maxLat] = bbox(feat);
+
       const avgLng = (minLng + maxLng) / 2;
       const avgLat = (minLat + maxLat) / 2;
       setMarker({ lng: avgLng, lat: avgLat });
-      mapRef.current.fitBounds(
+
+      mapRef.current?.fitBounds(
         [
           [minLng, minLat],
           [maxLng, maxLat]
@@ -151,7 +214,10 @@ function App() {
       );
     }else {
       const [minLng, minLat, maxLng, maxLat] = bbox(allData);
-      setEnableHover(true)      
+      setEnableHover(true)
+      setIsclicked(false)
+      setMarker(null)
+      setIsclickedrecommend(false)
       const japanBounds = [
         [122, 20],
         [154, 45] 
@@ -170,6 +236,7 @@ function App() {
   return (
     <div className='content'>
       <Map
+        className = "map"
         ref={mapRef}
         initialViewState={{
           longitude: 139,
@@ -190,17 +257,18 @@ function App() {
         ))}       
         </Source>
         
-        {clickMarker &&
+        {isclicked &&
         recommendMarker?.map((marker, index) => (
           <Marker 
             key={index}
             longitude={marker.lng}
             latitude={marker.lat}
+            onClick={MarkeronClick}
           >
-            <Pin size={20} />
+            <RecommendPin size={20} />
           </Marker>
         ))
-        }
+        }      
 
         {marker &&
           <Marker
@@ -215,18 +283,15 @@ function App() {
             <Pin size={20} />
           </Marker>
         }
-        
-
-        {hoverInfo && (
-          <div className="tooltip" style={{left: hoverInfo.x, top: hoverInfo.y}}>
-            <p>{hoverInfo}</p>
-            {/* <div>State: {hoverInfo.feature.properties.name}</div>
-            <div>Median Household Income: {hoverInfo.feature.properties.value}</div>
-            <div>Percentile: {(hoverInfo.feature.properties.percentile / 8) * 100}</div> */}
-          </div>
-        )}                 
+        <div className='paperposition'>
+         <SimpleBox/>
+        </div>
       </Map>
-      {/* <Sheet  /> */}
+
+      {isclickedrecommend &&
+        <RecommendSheet {...recommendInfo}/>
+      }
+
 
     </div>
   );
