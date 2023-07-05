@@ -1,10 +1,24 @@
 .content {
     display: flex;
     flex-direction: row;
+    position: relative;
 }
 .mapboxgl-map {
     margin: 0 0 auto 0;
+    position: relative;
 }
+.map {
+    position: relative;
+}
+.paperposition{
+    position: relative;
+    width: 390px;
+    height: 200px;    
+    margin: auto 0 auto auto;
+    padding-top:700px;
+    padding-right: 100px;
+}
+
 .card {
     display: flex;
     flex-direction: row;
