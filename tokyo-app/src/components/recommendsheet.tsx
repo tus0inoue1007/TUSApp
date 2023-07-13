@@ -5,14 +5,22 @@ import Cardjoy from '@/components/card_joy';
 import Cardlist from '@/components/cardlist';
 import "@/components/css/sheet.css";
 
-interface SheetInfo  {
-    prefecture: string;
-    image: string;
-    city: string;
-    feature: string;
-  }
+// interface SheetInfo  {
+//     prefecture: string;
+//     image: string;
+//     city: string;
+//     feature: string;
+//   }
   
-export default function MyApp(props:SheetInfo) {
+interface Mark {
+  prefecture: string;
+  lng:number;
+  lat:number;  
+  city: string;
+  image: string;
+  feature: string;
+}
+export default function MyApp(props:Mark) {
 
     const {prefecture,image,city,feature} = props;
    
