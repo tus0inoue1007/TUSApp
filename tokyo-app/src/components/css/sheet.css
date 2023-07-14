@@ -1,3 +1,7 @@
-.image {
-    width:350px;
+.date {
+    display: flex;
+    flex-direction: colmun;    
+}
+.sheet {
+    width: 350px;
 }

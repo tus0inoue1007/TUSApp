@@ -1,27 +1,16 @@
 .content {
     display: flex;
     flex-direction: row;
-    position: relative;
 }
-.mapboxgl-map {
-    margin: 0 0 auto 0;
-    position: relative;
-}
-.map {
-    position: relative;
-}
-.paperposition{
-    position: relative;
-    width: 390px;
-    height: 200px;    
-    margin: auto 0 auto auto;
-    padding-top:700px;
-    padding-right: 100px;
-}
-
-.card {
+.button {
+    float: right;
+    width: 180px;
     display: flex;
-    flex-direction: row;
-    height: 15%;
-    width: 40%   
+    flex-direction: column;    
 }
+/* .addmemorybutton {
+    float: right;
+} */
+.registerbutton {
+    width: 180px;
+} 

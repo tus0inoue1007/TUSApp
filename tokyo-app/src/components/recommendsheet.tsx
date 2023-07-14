@@ -1,16 +1,7 @@
 import Sheet from '@mui/joy/Sheet';
 import Textarea from '@/components/textarea';
 import Typography from '@mui/material/Typography';
-import Cardjoy from '@/components/card_joy';
-import Cardlist from '@/components/cardlist';
-import "@/components/css/sheet.css";
-
-// interface SheetInfo  {
-//     prefecture: string;
-//     image: string;
-//     city: string;
-//     feature: string;
-//   }
+import "@/components/css/recommendsheet.css";
   
 interface Mark {
   prefecture: string;
@@ -22,17 +13,14 @@ interface Mark {
 }
 export default function MyApp(props:Mark) {
 
-    const {prefecture,image,city,feature} = props;
-   
-
-
+  const {prefecture,image,city,feature} = props;
+  
   return (
     <Sheet variant="outlined" color="neutral" sx={{ p: 4 }}>
         Prefecture
         <Textarea text={prefecture}/>
         City
         <Textarea text={city}/>
-
         <Typography variant="h5" gutterBottom>
         {feature}    
         </Typography>
@@ -44,7 +32,6 @@ export default function MyApp(props:Mark) {
           loading="lazy"
           alt="知床"
         />
-
         {/* <Cardlist/> */}
     </Sheet>
   )
